@@ -1,5 +1,5 @@
 ---
-title:  "<b>¿Hubo o No Hubo Mejora?<br>
+title:  "<b>¿Hubo o No Hubo Mejora Ambiental?<br>
 <br>El Cambio de Régimen<br><br>
 Un Enfoque Estocástico Basado en Análisis de Series Temporales</b>"
 author: "Q.I. Víctor Soto Del Toro"
