@@ -1,0 +1,876 @@
+---
+title:  "<b>¿Hubo o No Hubo Mejora?<br>
+<br>El Cambio de Régimen<br><br>
+Un Enfoque Estocástico Basado en Análisis de Series Temporales</b>"
+author: "Q.I. Víctor Soto Del Toro"
+date: today
+
+format:
+  html:
+    theme: cosmo
+    self-contained: true
+    css: styles.css
+    toc: true
+    toc-location: right
+    toc-depth: 3
+    page-layout: article   # 👈 FUERZA layout de documento
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+::: {.fixed-logo title="Analítica Multivariable · Control estadístico y validación"}
+<img src="images/logo.png" alt="Analítica Multivariable"/>
+:::
+
+### **Sin datos, ni análisis, ni algoritmos, ni método, ni validación estocástica, ni probabilidad ni estadística, la sostenibilidad no es ética. [Es estética.]{.underline}**
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+**Nota:** este reporte especial está dirigido a profesionales del aseguramiento de la calidad y de la gestión de medio ambiente. No todo el material les parecerá novedoso. La innovación propuesta es la integración de la estocástica y la sostenibilidad en un mismo cuerpo de conocimeinto, para la validación científica del desempeño ambiental mediante el análisis de datos y abandonar la simulación y el comfort de mediciones incompletas. La agenda 2030 lo requiere.
+
+Y tú, ¿ya estás haciendo algo en serio para erradicar el greenwashing corporativo de tu organización?
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+# **¿Cómo Demostrarle A Reguladores Si La Intervención Ambiental Ya Surtió Efecto?**
+
+En la gestión moderna del desempeño (ambiental, operativo o de sostenibilidad) ya no es suficiente medir, graficar o reportar promedios. Las organizaciones serias enfrentan una exigencia mucho más concreta: **demostrar**, con base analítica sólida, **si un cambio ocurrió y cuándo ocurrió**.
+
+Para eso existe la Ciencia de Datos Ambientales. Y, al menos para organizaciones sujetas al escrutinio de sus estados financieros de acuerdo con [[**los párrafos 33, 34 y 35 de la norma IFRS S2 de sostenibilidad, de la que México es miembro activo**]{.underline}](https://www.cinif.org.mx/sostenibilidad_alianza.php), la rendición de cuentas del desempeño ambiental con base científica **ya no es opcional**. Omitirla o tergiversarla constituye, de acuerdo con la *Primera Sesión de la Alianza Regional Latinoamericana*, una forma de *greenwashing*. Los reportes ESG tradicionales han perdido credibilidad y hoy resultan insuficientes; la propia Alianza lo ha señalado públicamente.
+
+Esta exigencia no proviene únicamente de reguladores como el ISSB o agencias certificadoras. Proviene de la misma ONU y también de una necesidad interna: poder distinguir, **sin ambigüedad ni arbitrariedad**, entre el *antes* y el *después* de una intervención, una política, un proyecto, un ajuste operativo o una estrategia de mejora continua.
+
+En contextos de rendición de cuentas, particularmente en sostenibilidad y en el marco de la agenda 2030, esta distinción es crucial para evitar narrativas vagas, retrospectivas acomodadas o interpretaciones subjetivas que pueden derivar en greenwashing, aun sin intención explícita.
+
+El problema es conocido.
+
+Los datos varían, los procesos fluctúan, las mejoras rara vez son instantáneas y las decisiones suelen tomarse en medio de **ruido estadístico**. Frente a esta realidad, muchas organizaciones se apoyan únicamente en comparaciones “antes–después” definidas de forma administrativa o en gráficos descriptivos que, aunque útiles, **no resuelven las dos preguntas centrales que exigen control numérico**:
+
+> 
+>
+> ¿Hubo realmente un cambio de régimen en el proceso?\
+> Y si lo hubo, ¿en qué momento ocurrió?
+
+En este reporte especial partimos de estas dos preguntas y proponemos un enfoque analítico **riguroso, reproducible y defendible** para responderlas. En una palabra: **científico**.
+
+A lo largo del reporte se presenta un *workflow* completo, desde datos observados iniciales hasta una decisión explícita (simultáneamente administrativa y científica) sobre el **punto de quiebre del proceso**, combinando:
+
+-   Modelos de referencia para capturar el comportamiento esperado del sistema,
+
+-   Análisis de residuales para aislar desviaciones estructurales,
+
+-   Métodos de monitoreo estadístico para evidenciar acumulación y fases de transición,
+
+-   Y, finalmente, técnicas formales de ***change-point detection*** para determinar de manera objetiva **cuándo fue que el régimen cambió**.
+
+El objetivo no es producir gráficos sofisticados, ni *dashboards* de colores, ni explorar todas las variantes metodológicas posibles. Eso puede hacerse si el cliente así lo quiere, pero no es el foco del problema.
+
+El objetivo es uno solo y muy concreto:
+
+> 
+>
+> **Determinar, con base científica, si el régimen de un proceso ambiental cambió y en qué momento exacto se consolidó ese cambio.**
+
+Para ello, es necesario definir con claridad a qué nos referimos por *régimen* y por *cambio de régimen* en el contexto de un proceso ambiental que está obligado a demostrar que está resuelto a ser sostenible.
+
+En este reporte, se entiende por **régimen** el conjunto de propiedades estadísticas que caracterizan el comportamiento normal de un proceso en un periodo determinado: su nivel medio, su variabilidad, su estructura temporal y su forma de responder a perturbaciones. Mientras estas propiedades permanecen estables dentro de rangos estadísticamente coherentes, se considera que el proceso opera bajo un mismo régimen.
+
+Un **cambio de régimen** ocurre cuando estas propiedades dejan de ser compatibles con el comportamiento previo y se establece una nueva configuración estadística del proceso. Dicho cambio puede ser abrupto o gradual, pero se vuelve relevante en el momento en que la diferencia entre el antes y el después ya no puede atribuirse razonablemente al azar o a la variabilidad normal del sistema.
+
+El ejemplo que desarrollaremos en este reporte es genérico y didáctico, pero el procedimiento es directamente transferible a contextos reales de desempeño ambiental, calidad, eficiencia operativa o sostenibilidad corporativa. El lector puede tomar tanto el código como los conceptos para construir su propio *stack* analítico con datos reales de su organización.
+
+El documento presenta tanto la lógica conceptual como el código reproducible necesario para implementar el método y adaptarlo a distintos contextos y escalas de análisis.
+
+Este enfoque está pensado para quienes tienen responsabilidad frente a la organización, los *stakeholders*, los reguladores, clientes y, en última instancia, frente a sí mismos. No para improvisar conclusiones, sino para **analizar, decidir e informar, con base científica, cuando la evidencia cuantitativa importa**.
+
+En las secciones siguientes se desarrolla, paso a paso, el procedimiento y el algoritmo que permiten demostrar cómo, a partir de datos observados *happenstance*, es posible llegar a una conclusión clara, defendible y transparente sobre el cambio de régimen de un proceso. Con ello, se puede evaluar con base científica si una intervención va por buen camino o si requiere ajustes, reencuadre estratégico o trabajo adicional antes de continuar invirtiendo recursos que no generan los beneficios esperados.
+
+El autor se compromete únicamente a dos conclusiones, obtenidas por la vía matemática:
+
+1.  Determinar si **sí ocurrió** un cambio de régimen.
+
+2.  Determinar **cuándo ocurrió** dicho cambio de régimen.
+
+Nada más. Nada menos.
+
+Comencemos.
+
+---
+
+## **1. Datos observados: punto de partida del análisis**
+
+El análisis que vamos a realizar sigue un flujo lógico: **observar → modelar → analizar desviaciones**.
+
+Antes de entrar en la matemática, es importante entender el propósito de cada paso y lo que nos permitirá inferir más adelante.
+
+**Datos observados**
+
+Este primer bloque nos muestra la serie temporal real, tal como fue recolectada. Cada punto representa una medición semanal de concentración. No hay transformaciones ni filtros: es la evidencia cruda del proceso. Esta etapa nos permite familiarizarnos con el comportamiento general, detectar rangos de variación y reconocer posibles tendencias preliminares. Sin embargo, **aún no nos dice si ocurrió un cambio de régimen**; solo establece el punto de partida.
+
+```{r, echo = TRUE}
+(w <- 1:52)
+```
+
+---
+
+```{r, echo = TRUE}
+conc <- c(
+  35.8, 33.0, 33.6, 35.0, 33.5, 34.7, 33.6, 36.9, 38.8, 35.5,  
+  32.2, 32.2, 33.3, 33.5, 33.0, 33.1, 33.5, 31.9, 31.7, 32.4, 
+  34.8, 33.5, 33.9, 32.8, 34.2, 33.4, 31.1, 33.6, 28.9, 35.6, 
+  32.9, 31.8, 37.4, 32.0, 34.8, 31.7, 32.7, 36.0, 34.2, 30.3, 
+  39.6, 34.6, 31.7, 30.3, 34.4, 32.4, 31.1, 36.5, 33.2, 34.3, 
+  35.8, 32.4
+)
+```
+
+---
+
+**Visualización interactiva**
+
+Graficar los datos con `ggplot` y `plotly` cumple un doble propósito:
+
+-   Permite inspeccionar visualmente la serie para identificar patrones, picos o caídas importantes.
+
+-   Facilita la interacción para que el lector explore la serie, reforzando la intuición sobre la dinámica temporal.
+
+Esta visualización prepara la mente para comprender que lo que vemos como “tendencias” o “fluctuaciones” podría ser ruido, transición o señal de un cambio estructural.
+
+```{r, echo = TRUE}
+library(ggplot2)
+library(plotly)
+
+df1 <- data.frame(
+  Semana = w,
+  Conc = conc
+)
+
+p <- ggplot(df1, aes(x = Semana, y = Conc)) +
+  geom_point(color = "#265129", size = 2) +
+  geom_line(color = "#265129", linetype = "solid") +
+  labs(
+    title = "Serie temporal observada",
+    x = "Tiempo (semanas)",
+    y = "Concentración (mg/L)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggplotly(p)
+```
+
+---
+
+Este gráfico **no es evidencia**. Es **contexto**. Es **observación.**
+
+Aquí todavía no se habla de “mejora”, “impacto”, “éxito” ni “fracaso”. Solo se establece:
+
+-   que el proceso **fluctúa**,
+-   que la variabilidad es **real**,
+-   y que **a simple vista** podrían existir transiciones… o podrían ser solo ruido.
+
+Justo por eso, el siguiente paso no será comparar promedios ni trazar líneas arbitrarias, sino **definir un régimen de referencia** y analizar las desviaciones de manera estructurada.
+
+---
+
+## **2. Modelo de referencia del proceso (baseline)**
+
+Antes de hablar de cambios de régimen, es indispensable responder una pregunta previa y fundamental:
+
+**¿Cómo se comporta el proceso cuando no asumimos que nada “especial” ha ocurrido?**
+
+Para ello introducimos el concepto de **modelo de referencia** o *baseline del proceso*. Este modelo no representa una intervención, ni una mejora, ni una política específica. ¿Qué representa entonces?
+
+Representa el **comportamiento esperado** del proceso en el tiempo, considerando únicamente su dinámica interna y su variabilidad natural.
+
+En este reporte utilizamos un **Modelo Aditivo Generalizado (GAM)** como baseline (línea base). La razón es metodológica:
+
+-   Permite capturar **tendencias suaves y no lineales** sin imponer formas rígidas.
+-   No “fuerza” puntos de quiebre ni rupturas artificiales.
+-   Se ajusta mediante criterios estadísticos formales (REML), no por inspección visual.
+
+El baseline actúa como una **hipótesis nula operacional**:
+
+**Ho:** *“El proceso sigue comportándose conforme a su patrón histórico esperado.”*
+
+Así, la hipótesis alternativa será:
+
+**Ha:** *“El proceso **NO** sigue comportándose conforme a su patrón histórico esperado.”*
+
+Este es el pensamiento inferencial frecuentista que desbarata el greenwashing, por completo.
+
+```{r, echo = TRUE}
+library(mgcv)
+# Modelo GAM: baseline del proceso
+mod_ref <- gam(conc ~ s(w, k = 6), method = "REML")
+
+# Resumen del modelo
+summary(mod_ref)
+```
+
+---
+
+```{r, echo = TRUE}
+
+library(ggplot2)
+library(plotly)
+
+# Data frame con valores ajustados
+df_baseline <- data.frame(
+  Semana = w,
+  Conc = conc,
+  Baseline = fitted(mod_ref)
+)
+
+# Gráfico del baseline
+p_baseline <- ggplot(df_baseline, aes(x = Semana)) +
+  geom_point(aes(y = Conc), color = "#265129", size = 2) +
+  geom_line(aes(y = Conc), color = "#265129", linetype = "solid") +
+  geom_line(aes(y = Baseline), color = "#B22222", linewidth = 1.2) +
+  labs(
+    title = "Modelo de referencia del proceso (baseline)",
+    x = "Tiempo (semanas)",
+    y = "Concentración (mg/L)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggplotly(p_baseline)
+```
+
+---
+
+Sobre el gráfico se muestran:
+
+1.  \- Los datos observados (puntos y línea),
+2.  \- La curva roja del baseline, que resume **la tendencia suave esperada del proceso**.
+
+Este paso es crítico porque **todo el análisis posterior depende de él**.
+
+Sin un baseline explícito que parta de un modelo estadístico apropiado, cualquier afirmación de “mejora”, “impacto” o “cambio” queda sujeta a interpretación subjetiva y arbitrariedad. Ese tipo de discurso narrativo va en contra de la ciencia.
+
+En términos de rendición de cuentas, este modelo permite separar claramente:
+
+1.  \- Lo que es **variación inherente del proceso**,
+2.  \- De lo que podría ser una **desviación estructural**.
+
+En la siguiente sección, utilizaremos este baseline para construir los **residuales del proceso**, que son la materia prima real para detectar cambios de régimen de manera objetiva y defendible.
+
+Aquí todavía no afirmamos que el régimen haya cambiado.
+
+Solo establecemos, con rigor estadístico, **la referencia** **contra la cual vamos a evaluar esa afirmación**.
+
+---
+
+## **3. Residuales: desviación respecto al régimen esperado**
+
+Una vez definido el modelo de referencia, el análisis entra en su fase decisiva.\
+El interés ya no está en los valores observados en sí mismos, sino en **cuánto y cómo se desvían del comportamiento esperado del proceso**.
+
+A estas desviaciones las llamamos **residuales**.
+
+Formalmente, cada residual representa:
+
+> **Dato observado – valor esperado según el baseline**
+
+Desde el punto de vista de control y rendición de cuentas, los residuales son el objeto correcto de análisis, porque:
+
+-   Eliminan la tendencia suave del proceso.
+-   Aíslan señales que no pueden explicarse por la dinámica normal.
+-   Transforman el problema en uno de **estabilidad de régimen**.
+
+Si el proceso no ha cambiado de régimen, los residuales deberían comportarse como ruido alrededor de cero, sin patrones persistentes, acumulaciones o desplazamientos sistemáticos.
+
+```{r, echo = TRUE}
+# Residuales del modelo de referencia
+as.matrix((res <- resid(mod_ref)))
+```
+
+---
+
+```{r, echo = TRUE}
+library(ggplot2)
+library(plotly)
+
+# Data frame de residuales
+df_res <- data.frame(
+  Semana = w,
+  Residual = res
+)
+
+# Gráfico de residuales
+p_res <- ggplot(df_res, aes(x = Semana)) +
+  geom_point(aes(y = Residual), color = "#265129", size = 2) +
+  geom_line(aes(y = Residual), color = "#265129") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray40") +
+  labs(
+    title = "Residuales respecto al modelo de referencia",
+    x = "Tiempo (semanas)",
+    y = "Residual (observado – baseline)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggplotly(p_res)
+```
+
+---
+
+En el gráfico se observa: - La línea horizontal en cero, que representa el régimen esperado. - Las desviaciones positivas y negativas respecto a ese régimen. - Posibles zonas donde los residuales dejan de oscilar simétricamente.
+
+Este paso marca una diferencia clave entre análisis improvisado y análisis riguroso:
+
+-   Comparar promedios “antes y después” **asume** un punto de corte.
+-   Analizar residuales **permite detectarlo**.
+
+En términos de sostenibilidad, calidad o desempeño operativo, este enfoque evita conclusiones retrospectivas acomodadas. No se decide primero “cuándo cambió el proceso” para luego justificarlo; se permite que **los datos lo indiquen**.
+
+En la siguiente sección avanzaremos un paso más:\
+aplicaremos métodos de **monitoreo estadístico** sobre los residuales para evaluar si estas desviaciones se acumulan de forma consistente, preparando el terreno para la detección formal del cambio de régimen.
+
+Ahí es donde el análisis deja de ser diagnóstico y empieza a ser **probatorio**.
+
+---
+
+## **4. Reducción no paramétrica: signos**
+
+Hasta este punto hemos trabajado con magnitudes: cuánto se desvía cada observación respecto al régimen esperado.\
+Ahora realizamos una **reducción deliberada de información**.
+
+Cada residual se transforma únicamente en su **dirección**:
+
+-   +1 si el proceso está por encima del régimen esperado,
+-   −1 si está por debajo,
+-   0 si coincide exactamente con el baseline.
+
+```{r, echo = TRUE}
+# Reducción no paramétrica: signo del residual
+# −1 : observación por debajo del baseline
+#  0 : observación exactamente en el baseline
+# +1 : observación por encima del baseline
+as.matrix(z <- sign(res))
+```
+
+---
+
+Este paso puede parecer contraintuitivo para lectores acostumbrados a maximizar detalle numérico, pero es metodológicamente fundamental.
+
+La razón es simple:
+
+> Para detectar un **cambio de régimen**, no importa tanto *cuánto* se desvía el proceso en un instante aislado, sino *hacia dónde* se desvía de forma persistente.
+
+Al trabajar con signos:
+
+-   Eliminamos la influencia de valores extremos.
+-   Reducimos sensibilidad a outliers.
+-   Ganamos robustez frente a ruido de alta variabilidad.
+-   Convertimos el problema en uno de **dirección acumulada**, no de magnitud puntual.
+
+Desde la perspectiva de rendición de cuentas, esta decisión tiene implicaciones importantes:
+
+-   Evita justificar conclusiones con eventos aislados o picos anómalos.
+-   Impide que una sola observación extrema “simule” una mejora o deterioro.
+-   Refuerza el carácter defensible del análisis ante auditorías técnicas o regulatorias.
+
+Esta reducción no es una simplificación ingenua, sino una estrategia clásica en control estadístico y detección de cambios: primero se estabiliza el lenguaje de la señal, luego se evalúa su acumulación en el tiempo.
+
+En las siguientes secciones utilizaremos estos signos como insumo para construir estadísticas de monitoreo que permiten responder, con evidencia acumulada, si el proceso **está migrando hacia un nuevo régimen** o si las desviaciones observadas siguen siendo compatibles con fluctuaciones normales.
+
+Aquí es donde el análisis deja definitivamente atrás la descripción y entra en el terreno de la **decisión estadística estructural**.
+
+---
+
+## **5. CUSUM no paramétrico: evidencia global de cambio**
+
+Una vez que cada observación ha sido reducida a su dirección respecto al régimen esperado, el siguiente paso es **acumular esa información en el tiempo**. Para ello utilizamos un **CUSUM (Cumulative Sum)** no paramétrico.
+
+El CUSUM suma secuencialmente los signos de los residuales. Conceptualmente:
+
+-   Si el proceso oscila alrededor del baseline sin sesgo estructural, la suma acumulada tenderá a fluctuar alrededor de cero.
+-   Si el proceso comienza a desviarse de forma persistente en una dirección, el CUSUM mostrará una deriva sostenida.
+
+Este gráfico no pretende identificar con precisión el momento exacto del cambio. Su función es distinta y complementaria:
+
+> 
+>
+> El CUSUM responde a la pregunta:\
+> **¿Existe evidencia acumulada de que el proceso dejó de comportarse como antes?**
+
+```{r, echo = TRUE}
+library(ggplot2)
+library(plotly)
+
+# CUSUM no paramétrico de signos
+cusum <- cumsum(z)
+
+df_cusum <- data.frame(
+  Semana = w,
+  CUSUM = cusum
+)
+
+p_cusum <- ggplot(df_cusum, aes(x = Semana, y = CUSUM)) +
+  geom_line(linewidth = 1.2, color = "#265129") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title = "CUSUM no paramétrico (evidencia acumulada)",
+    x = "Semana",
+    y = "CUSUM (signos)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggplotly(p_cusum)
+```
+
+---
+
+Desde una perspectiva de gestión y rendición de cuentas, el CUSUM cumple un rol clave:
+
+-   Convierte múltiples desviaciones pequeñas, aparentemente irrelevantes de forma aislada, en una señal clara cuando se acumulan.
+-   Permite detectar cambios graduales que no serían visibles en comparaciones “antes–después”.
+-   Proporciona evidencia global, **no anecdótica**, del comportamiento del proceso.
+
+Es importante subrayar que el CUSUM **no decide** por sí solo el punto de quiebre. Su valor está en mostrar que la hipótesis de estabilidad del régimen empieza a ser insostenible.
+
+En otras palabras, aquí no estamos “fechando” el cambio, sino **demostrando que algo estructural está ocurriendo y cambiando**. El cambio puede ser perjudicial si la contaminación está aumentando, o benéfico si se está reduciendo.
+
+El CUSUM no dictamina si ese cambio es para bien o para mal. Eso lo determina el tomador de decisiones.
+
+En la siguiente sección refinaremos esta evidencia utilizando una estadística local, Suma Móvil, (MOSUM), diseñada específicamente para acotar temporalmente la transición y preparar el terreno para tomar una decisión formal del **change-point**.
+
+---
+
+## **6. MOSUM no paramétrico: identificación de la fase de transición**
+
+Mientras que el CUSUM proporciona **evidencia global acumulada** de que el proceso dejó de comportarse como antes, el **MOSUM (Moving Sum)** introduce una perspectiva distinta y crucial: una **mirada local en el tiempo**.
+
+El MOSUM no acumula toda la historia del proceso. En su lugar, evalúa lo que ocurre **dentro de una ventana móvil de tamaño fijo**, lo que lo convierte en una herramienta especialmente adecuada para detectar **fases de transición entre regímenes**.
+
+```{r, echo = TRUE}
+library(ggplot2)
+library(plotly)
+
+# Tamaño de ventana (escala local del proceso)
+h <- 8
+
+# MOSUM no paramétrico de signos
+mosum <- sapply(h:length(z), function(t) {
+  sum(z[(t - h + 1):t])
+})
+
+w_mosum <- w[h:length(w)]
+
+df_mosum <- data.frame(
+  Semana = w_mosum,
+  MOSUM = mosum
+)
+
+p_mosum <- ggplot(df_mosum, aes(x = Semana, y = MOSUM)) +
+  geom_line(linewidth = 1.2, color = "#265129") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title = paste("MOSUM no paramétrico (h =", h, ")"),
+    x = "Semana",
+    y = "MOSUM (signos)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggplotly(p_mosum)
+```
+
+---
+
+#### **Definición matemática de MOSUM**
+
+Sea $z_t$ la secuencia de signos de los residuales, definida como:
+
+$$z_t = \operatorname{sign}(r_t), \quad z_t \in {-1, 0, +1}$$
+
+donde $r_t$ es el residual del modelo de referencia en el tiempo $t$.
+
+El estadístico MOSUM se define como:
+
+$$\mathrm{MOSUM}_{t(h)} = \sum{i=t-h+1}^{t} z_i$$
+
+donde:
+
+-   $h$ es el tamaño de la ventana (escala local del análisis),
+-   $t\ge h$,
+-   la suma incluye únicamente las observaciones más recientes dentro de la ventana.
+
+#### **Interpretación estadística**
+
+Esta expresión tiene una lectura directa:
+
+-   El MOSUM mide el **balance local** entre desviaciones positivas y negativas respecto al régimen esperado.
+-   Si dentro de la ventana predominan residuales positivos, el MOSUM será positivo.
+-   Si predominan residuales negativos, el MOSUM será negativo.
+-   Si el proceso está en equilibrio, el MOSUM oscila alrededor de cero.
+
+A diferencia del CUSUM, el MOSUM **no crece indefinidamente**. Su diseño obliga al estadístico a “olvidar” el pasado remoto, concentrándose únicamente en el comportamiento reciente.
+
+#### **Significado operacional del parámetro** $h$
+
+El parámetro $h$ representa una decisión analítica explícita:
+
+-   Define la **escala temporal mínima** a la que un cambio es considerado relevante.
+-   Ventanas pequeñas detectan transiciones rápidas, pero pueden ser sensibles al ruido.
+-   Ventanas más grandes suavizan la señal, pero requieren cambios más persistentes.
+
+En términos de gestión y rendición de cuentas, $h$ debe interpretarse como:
+
+> “¿Cuántas observaciones consecutivas necesito para considerar que un cambio es real y no un accidente?”
+
+#### **Rol del MOSUM en el workflow**
+
+El MOSUM cumple una función precisa dentro del procedimiento completo:
+
+-   No decide aún el punto exacto de quiebre.
+-   No sustituye a los métodos formales de change-point.
+-   **Delimita temporalmente la fase de transición**, mostrando dónde el proceso deja de oscilar y comienza a desplazarse de forma estructural.
+
+En otras palabras, el MOSUM transforma la pregunta difusa *“algo parece estar cambiando”* en una señal localizada que prepara el terreno para la decisión final.
+
+En la siguiente sección utilizaremos técnicas formales de **change-point detection** para convertir esta evidencia visual y estadística en una **fecha objetiva y defendible del cambio de régimen**.
+
+---
+
+## **7. Detección explícita del change-point: decisión formal y auditable**
+
+En esta etapa el análisis deja definitivamente el terreno exploratorio y entra en el ámbito de la **decisión estadística formal**.
+
+El objeto informativo mostrado enseguida corresponde al resultado directo (sin post-procesamiento ni reinterpretación ni opinión humana) del algoritmo de detección de *change-point,* aplicado a los residuales del modelo de referencia.
+
+Este punto es crucial desde la perspectiva de rendición de cuentas: **no se reporta una gráfica interpretada, sino la salida íntegra de un procedimiento estadístico estándar**, implementado mediante una librería ampliamente utilizada , respetada y mantenida en CRAN.
+
+#### **¿Qué está detectando exactamente el algoritmo?**
+
+Lo haremos de dos maneras.
+
+Primero por la vía no paramétrica.
+
+```{r, echo = TRUE}
+library(changepoint)
+library(changepoint.np)
+
+# Detección no paramétrica basada en la distribución empírica
+summary(cpt.np(
+  conc,
+  method     = "PELT",
+  penalty    = "MBIC",
+  test.stat  = "empirical_distribution"
+))
+```
+
+Segundo, por la vía páramétrica.
+
+```{r, echo=TRUE}
+summary(cpt.mean(
+  res,
+  method  = "AMOC",
+  penalty = "AIC"
+))
+```
+
+Ambas arrojan el mismo resultado: **el cambio de régimen ocurre a partir de la semana 10.**
+
+```{r, echo = FALSE}
+cp_index <- 10
+```
+
+El procedimiento aplicado es:
+
+-   **Tipo de cambio**: cambio en la **media** (*Change in mean*).
+-   **Variable analizada**: residuales del modelo de referencia.
+-   **Hipótesis implícita**: existe a lo sumo un punto en el tiempo a partir del cual la media de los residuales cambia de manera estructural.
+
+Esto significa que el algoritmo está respondiendo a la siguiente pregunta formal:
+
+> ¿Existe el la serie de datos, un instante en el que el comportamiento del proceso deja de fluctuar alrededor del mismo nivel esperado y pase a hacerlo alrededor de otro?
+
+### **Enfoque PELT: detección óptima bajo penalización, no búsqueda oportunista**
+
+El método **PELT (Pruned Exact Linear Time)** está diseñado para identificar puntos de cambio **óptimos** en una serie temporal, equilibrando de forma explícita dos fuerzas contrapuestas: la evidencia estadística de cambio y la complejidad del modelo.
+
+A diferencia de enfoques exploratorios, PELT no “busca rupturas” de manera oportunista, sino que selecciona únicamente aquellas que justifican su existencia frente a una penalización formal. En el contexto de rendición de cuentas, este enfoque es especialmente adecuado cuando se requiere demostrar que un cambio de régimen es suficientemente fuerte como para sobrevivir a un criterio conservador, evitando la sobre–segmentación y las narrativas retrospectivas.
+
+El resultado no es una colección de quiebres posibles, sino una decisión estadística optimizada sobre si el proceso cambió y cuándo ese cambio se consolidó.
+
+#### **Enfoque AMOC: una decisión, no una exploración**
+
+El método **AMOC (At Most One Change)** asume explícitamente que:
+
+-   El análisis busca **un único punto de quiebre dominante**.
+-   No se pretende identificar múltiples rupturas menores, sino **fechar el momento que separa dos regímenes claramente distinguibles**.
+
+Este enfoque es especialmente adecuado cuando el análisis está ligado a una intervención, política o proyecto específico, y cuando la rendición de cuentas exige una respuesta clara del tipo *sí/no*.
+
+#### **Penalización AIC y criterio de decisión**
+
+La penalización **AIC** controla el balance entre:
+
+-   Sensibilidad para detectar un cambio real,
+-   Evitar ajustes artificiales a ruido aleatorio.
+
+El valor mostrado en la salida indica que el algoritmo evaluó la existencia del cambio y concluyó que **introducir un punto de quiebre mejora el modelo lo suficiente como para justificar su inclusión**, bajo este criterio.
+
+#### **Interpretación del resultado**
+
+La línea clave del output es:
+
+Este resultado establece, de manera explícita y reproducible, que:
+
+-   [El **cambio de régimen se detecta en la semana 10**.]{.underline}
+-   A partir de ese punto, el proceso exhibe un comportamiento estadísticamente distinto al observado antes.
+
+No se trata de una decisión administrativa ni de una delimitación arbitraria.\
+Es la **fecha estimada por el algoritmo** como el punto donde el régimen cambia.
+
+#### **¿Por qué este resultado es defendible?**
+
+Este output cumple con los criterios fundamentales de rigor:
+
+-   Es **reproducible**: cualquier analista con los mismos datos y código obtiene el mismo resultado.
+-   Es **auditable**: se reporta el método, la penalización, el estadístico y la localización del cambio.
+-   Es **no narrativo**: la fecha no se “elige”, se estima.
+
+En términos de sostenibilidad, calidad o desempeño operativo, este punto de quiebre puede utilizarse como:
+
+-   Frontera entre el régimen previo y el posterior a una intervención.
+-   Referencia objetiva para evaluar eficacia, rezagos o necesidad de ajustes.
+-   Evidencia cuantitativa frente a reguladores, certificadoras y stakeholders.
+
+En la sección siguiente integraremos este punto de quiebre con los análisis anteriores, mostrando cómo **CUSUM, MOSUM y change-point convergen hacia una misma estructura temporal**, cerrando el ciclo analítico y narrativo sin recurrir a interpretaciones subjetivas, totalmente de subjetividades, preferencias, opiniones personales o "*experiencia profesional*".
+
+Aquí, finalmente, **el análisis ya respondió con precisión** a las dos preguntas fundamentales:
+
+1.  **Sí hubo un cambio de régimen.**
+2.  **Ocurrió en un momento identificable y defendible en el tiempo.**
+
+---
+
+## **8. Integración visual centrada en el change-point**
+
+En esta sección se integran todos los elementos del análisis alrededor de un único eje decisional: **el punto de quiebre detectado formalmente**.
+
+A diferencia de enfoques puramente descriptivos, aquí las visualizaciones no buscan “sugerir” interpretaciones, sino **confirmar visualmente una decisión estadística ya tomada** en la sección anterior mediante un algoritmo explícito de *change-point detection*.
+
+### **Residuales: Evidencia directa del cambio de régimen**
+
+El primer gráfico muestra los residuales del modelo de referencia junto con el punto de quiebre estimado.\
+Este gráfico permite observar de manera directa que:
+
+-   Antes del punto de quiebre, los residuales fluctúan alrededor de un nivel medio consistente.
+-   A partir del punto de quiebre, el patrón de desviación cambia, indicando que el proceso ya no responde al mismo régimen estadístico.
+
+El punto vertical no es interpretativo ni ajustado a posteriori: **corresponde exactamente a la localización estimada por el algoritmo AMOC**.
+
+```{r, echo = TRUE}
+library(ggplot2)
+library(plotly)
+
+# Data frame para residuales
+df_res <- data.frame(
+  Semana   = w,
+  Residual = res
+)
+
+# Residuales con change-point
+p_res <- ggplot(df_res, aes(x = Semana, y = Residual)) +
+  geom_point(color = "#265129") +
+  geom_line(color = "#265129") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "#2C3E50") +
+  geom_vline(xintercept = cp_index,
+             linetype = "dashed",
+             color = "#B03A2E",
+             linewidth = 1) +
+  labs(
+    title = "Residuales del proceso con punto de quiebre detectado",
+    x = "Semana",
+    y = "Residual"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggplotly(p_res)
+```
+
+---
+
+### **CUSUM: Evidencia global de cambio de régimen**
+
+El CUSUM representa la **suma acumulada de los signos de los residuales**, capturando la dirección persistente de las desviaciones respecto al régimen esperado.
+
+Su función en este workflow no es localizar el momento exacto del cambio, sino responder una pregunta previa y fundamental:
+
+> 
+>
+> ¿Existe evidencia acumulada de que el proceso dejó de comportarse como antes?
+
+Al superponer el punto de quiebre detectado formalmente, se observa que el CUSUM presenta una **deriva sostenida** a partir de dicho punto, lo cual es incompatible con un proceso estacionario bajo el régimen inicial.
+
+```{r, echo = TRUE}
+library(ggplot2)
+library(plotly)
+
+# Data frame para CUSUM
+df_cusum <- data.frame(
+  Semana = w,
+  CUSUM  = cusum
+)
+
+# CUSUM con change-point
+p_cusum <- ggplot(df_cusum, aes(x = Semana, y = CUSUM)) +
+  geom_line(color = "#196F3D", linewidth = 1) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_vline(xintercept = cp_index,
+             linetype = "dashed",
+             color = "#B03A2E",
+             linewidth = 1) +
+  labs(
+    title = "CUSUM no paramétrico y cambio de régimen",
+    x = "Semana",
+    y = "CUSUM (signos)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggplotly(p_cusum)
+```
+
+En este enfoque, el CUSUM cumple un rol específico:
+
+-   Confirma la existencia de un cambio estructural a escala global.
+
+-   Proporciona evidencia acumulada independiente de ventanas móviles.
+
+-   Sustenta la necesidad de una detección explícita de cambio de régimen.
+
+Así, el CUSUM establece la **evidencia global**, mientras que el MOSUM caracteriza la transición y el algoritmo de *change-point* fija la fecha del quiebre.
+
+---
+
+### **MOSUM: Transición y consolidación del nuevo régimen**
+
+El segundo gráfico integra el mismo punto de quiebre sobre el estadístico MOSUM, que captura cambios locales y acumulativos en la dirección del error.
+
+Aquí se observa algo fundamental para la rendición de cuentas:
+
+-   El cambio no ocurre como un salto instantáneo perfectamente limpio.
+-   Existe una **fase de transición**, donde el proceso se desplaza gradualmente de un régimen a otro.
+-   El punto de quiebre marca el instante en que ese desplazamiento se vuelve estadísticamente consistente y defendible.
+
+Este comportamiento es típico de procesos reales, especialmente en contextos ambientales, operativos y de sostenibilidad, donde las intervenciones rara vez producen efectos inmediatos.
+
+```{r, echo = TRUE}
+# Data frame para MOSUM
+df_mosum <- data.frame(
+  Semana = w_mosum,
+  MOSUM  = mosum
+)
+
+# MOSUM con change-point
+p_mosum <- ggplot(df_mosum, aes(x = Semana, y = MOSUM)) +
+  geom_line(color = "#265129", linewidth = 1) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_vline(xintercept = cp_index,
+             linetype = "dashed",
+             color = "#B03A2E",
+             linewidth = 1) +
+  labs(
+    title = "MOSUM no paramétrico y fase de transición",
+    x = "Semana",
+    y = "MOSUM (signos)"
+  ) +
+  theme_minimal(base_size = 14)
+
+ggplotly(p_mosum)
+```
+
+---
+
+# **Conclusión: Cierre del Workflow Analítico**
+
+Con esta integración visual se cierra el workflow completo:
+
+-   Los datos observados muestran variabilidad natural.
+-   El modelo de referencia captura el comportamiento esperado.
+-   Los residuales aíslan desviaciones estructurales.
+-   CUSUM evidencia acumulación global.
+-   MOSUM revela la fase de transición.
+-   El algoritmo de *change-point* fija el momento exacto del cambio.
+
+A partir de este punto, **ya no hay ambigüedad**:
+
+-   El antes y el después quedan definidos.
+-   La fecha del cambio no depende de criterios administrativos.
+-   La conclusión puede ser defendida técnica, regulatoria y científicamente.
+
+Este es el tipo de análisis que permite pasar de narrativas vagas a **evidencia cuantitativa**, y de reportes declarativos a rendición de cuentas basada en datos.
+
+Espero que esta información haya sido de tru agrado. Quiero aclarar que, aunque útil e ilustrativa, no es completa ni pretende serlo.
+
+Lo único que busca es mostrarle al lector una sola cosa: el auténtico rigor científico que demuestra la verdad acerca de un asunto, exige análisis. Sin él, solo tenemos nuestras palabras.
+
+Tú eliges: informar con cifras válidas o describir con discursos convincentes.
+
+Cualquier error, inconsistencia o contradicción que detectes es responsabilidad totalmente mía. Házmela saber.
+
+Gracias.
+
+------------------------------------------------------------------------
+
+Y recuerda el origen del greenwashing:
+
+**Sin datos, ni análisis, ni algoritmos, ni método, ni validación estocástica, ni probabilidad ni estadística, la sostenibilidad no es ética. [Es estética.]{.underline}**
+
+## **Otras publicaciones del autor:**
+
+[Bases de la validación en ciencias aplicadas y medio ambiente](https://qivictorsotodeltoro.github.io/validacion/#/title-slide)
+
+[Bases del análisis multivariable para procesos fisicoquímicos](https://qivictorsotodeltoro.github.io/multivariable/)
+
+[Bases del aseguramiento de calidad aplicado al desempeño ambiental, parte I](https://qivictorsotodeltoro.github.io/aseguramiento/)
+
+[Bases del aseguramiento de calidad aplicado al desempeño ambiental, parte II](https://qivictorsotodeltoro.github.io/montecarlo/)
+
+[Diseño científico de calendarios de muestreo con base estocástica por Transformada de Fourier](https://qivictorsotodeltoro.github.io/tiempo/)
+
+[Base científica para demostrar los efectos benéficos de intervenciones ambientales](https://qivictorsotodeltoro.github.io/intervencion/)
+
+## **Contacto**
+
+Para orientación, consultas, estudios y proyectos relacionados con validación de datos, contáctenos:
+
+[Q. I. Víctor Soto Del Toro](https://www.linkedin.com/in/qivictorsotodeltoro/)
+
+# **Qué NO Hacemos en Analítica Sostenible**
+
+No contamos historias para que los números “se vean bien”.\
+Si un resultado no puede sostenerse con evidencia, no lo maquillamos con narrativa.
+
+No entregamos cifras para tranquilizar conciencias.\
+Nuestro trabajo no existe para generar comodidad, sino claridad.
+
+No presentamos conclusiones que no estaríamos dispuestos a defender públicamente.\
+Si un resultado no resiste escrutinio, no se publica.
+
+No convertimos la incertidumbre en silencio.\
+Ocultarla, minimizarla o ignorarla es una forma de engaño.
+
+No afirmamos impactos positivos que no puedan demostrarse.\
+Decir “vamos bien” sin evidencia es una falta ética, no una opinión técnica.
+
+No trabajamos para justificar decisiones ya tomadas.\
+Nuestro rol no es legitimar discursos, sino evaluar hechos.
+
+No ajustamos el rigor según conveniencia política, institucional o comercial.\
+La responsabilidad ambiental no se negocia.
+
+No confundimos sostenibilidad con buena intención.\
+Las intenciones no reducen impactos.\
+Las decisiones informadas, sí.
+
+No usamos el lenguaje de la ciencia para encubrir ausencia de ciencia.\
+Eso no es error metodológico: es deshonestidad profesional.
+
+En resumen:
+
+No participamos en la simulación de responsabilidad.
