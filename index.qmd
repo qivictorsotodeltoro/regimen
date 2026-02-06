@@ -280,7 +280,9 @@ Desde el punto de vista de control y rendición de cuentas, los residuales son e
 -   Aíslan señales que no pueden explicarse por la dinámica normal.
 -   Transforman el problema en uno de **estabilidad de régimen**.
 
-Si el proceso no ha cambiado de régimen, los residuales deberían comportarse como ruido alrededor de cero, sin patrones persistentes, acumulaciones o desplazamientos sistemáticos.
+La misión de este trabajo analítico es averiguar si el cambio de régimen ocurrió o no ocurrió. Las opiniones subjetivas están prohibidas porque no son científicas. Por eso, la regla oeprativa que debes tener presente es lo siguiente:
+
+**Si el proceso no ha cambiado de régimen, entonces los residuales (que surgen del modelo apropiadamente seleccionado) deberían comportarse como ruido alrededor de cero, sin patrones persistentes, ni tendencias, ni acumulaciones ni desplazamientos sistemáticos. Solo ruido. En términos de TSA estrictamente hablamos del ruido blanco de la ACF.**
 
 ```{r, echo = TRUE}
 # Residuales del modelo de referencia
@@ -316,17 +318,26 @@ ggplotly(p_res)
 
 ---
 
-En el gráfico se observa: - La línea horizontal en cero, que representa el régimen esperado. - Las desviaciones positivas y negativas respecto a ese régimen. - Posibles zonas donde los residuales dejan de oscilar simétricamente.
+En el gráfico se observa:
+
+1.  La línea horizontal en cero, que representa el régimen esperado.
+
+2.  Las desviaciones positivas y negativas respecto a ese régimen.
+
+3.  Posibles zonas donde los residuales dejan de oscilar simétricamente.
 
 Este paso marca una diferencia clave entre análisis improvisado y análisis riguroso:
 
 -   Comparar promedios “antes y después” **asume** un punto de corte.
 -   Analizar residuales **permite detectarlo**.
 
-En términos de sostenibilidad, calidad o desempeño operativo, este enfoque evita conclusiones retrospectivas acomodadas. No se decide primero “cuándo cambió el proceso” para luego justificarlo; se permite que **los datos lo indiquen**.
+En términos de sostenibilidad, calidad o desempeño operativo, este enfoque evita conclusiones artificales que siempre son acomodos retrospectivos. Es decir:
 
-En la siguiente sección avanzaremos un paso más:\
-aplicaremos métodos de **monitoreo estadístico** sobre los residuales para evaluar si estas desviaciones se acumulan de forma consistente, preparando el terreno para la detección formal del cambio de régimen.
+Si estás buscando cambios de régimen en conjuntos de datos happenstance, lo que no debes hacer nunca es decidir primero “cuándo cambió el proceso” y luego buscar métodos para justificar tu decisión. Eso es anticientífico y contrario al principio de falsabilidad de la escuela de Popper. Lo que debes hacer es **permitir que** **los datos hablen y te indiquen si hubo o no transición de régimen y cuándo ocurrió**. La validación es para eso.
+
+En la siguiente sección avanzaremos un paso más:
+
+Aplicaremos métodos de **monitoreo estadístico** sobre los residuales para evaluar si estas desviaciones se acumulan de forma consistente, preparando el terreno para la detección formal del cambio de régimen.
 
 Ahí es donde el análisis deja de ser diagnóstico y empieza a ser **probatorio**.
 
@@ -334,8 +345,9 @@ Ahí es donde el análisis deja de ser diagnóstico y empieza a ser **probatorio
 
 ## **4. Reducción no paramétrica: signos**
 
-Hasta este punto hemos trabajado con magnitudes: cuánto se desvía cada observación respecto al régimen esperado.\
-Ahora realizamos una **reducción deliberada de información**.
+Hasta este punto hemos trabajado con magnitudes: cuánto se desvía cada observación respecto al régimen esperado.
+
+Ahora realizamos una **reducción deliberada de información**. No es obligatoria ni debes ni necesitas hacerla como lo haré aquí. Aunque es totalmente aceptable, existen métodos más sofisticados. Sigamos.
 
 Cada residual se transforma únicamente en su **dirección**:
 
@@ -374,7 +386,7 @@ Desde la perspectiva de rendición de cuentas, esta decisión tiene implicacione
 
 Esta reducción no es una simplificación ingenua, sino una estrategia clásica en control estadístico y detección de cambios: primero se estabiliza el lenguaje de la señal, luego se evalúa su acumulación en el tiempo.
 
-En las siguientes secciones utilizaremos estos signos como insumo para construir estadísticas de monitoreo que permiten responder, con evidencia acumulada, si el proceso **está migrando hacia un nuevo régimen** o si las desviaciones observadas siguen siendo compatibles con fluctuaciones normales.
+En las siguientes secciones utilizaremos estos signos como insumo para construir estadísticas de monitoreo que permiten responder, con evidencia acumulada, si el proceso **está migrando hacia un nuevo régimen** o si las desviaciones observadas siguen siendo compatibles con las fluctuaciones del pasado, lo que significaría que no hubo cambio.
 
 Aquí es donde el análisis deja definitivamente atrás la descripción y entra en el terreno de la **decisión estadística estructural**.
 
@@ -389,7 +401,7 @@ El CUSUM suma secuencialmente los signos de los residuales. Conceptualmente:
 -   Si el proceso oscila alrededor del baseline sin sesgo estructural, la suma acumulada tenderá a fluctuar alrededor de cero.
 -   Si el proceso comienza a desviarse de forma persistente en una dirección, el CUSUM mostrará una deriva sostenida.
 
-Este gráfico no pretende identificar con precisión el momento exacto del cambio. Su función es distinta y complementaria:
+Este gráfico no pretende identificar con precisión el momento exacto del cambio. Eso lo hacemos después. Por ahora, su función es distinta y complementaria:
 
 > 
 >
@@ -423,13 +435,15 @@ ggplotly(p_cusum)
 
 ---
 
-Desde una perspectiva de gestión y rendición de cuentas, el CUSUM cumple un rol clave:
+Con solo dar un vistazo, parece que sí. Sin embargo, si hemos de ser formales, ningún gráfica es jamás concluyente. Para eso se necesitan las pruebas y algoritmos analíticos.
+
+Sin embargo, desde una perspectiva de gestión y rendición de cuentas provisional, el CUSUM cumple un rol clave:
 
 -   Convierte múltiples desviaciones pequeñas, aparentemente irrelevantes de forma aislada, en una señal clara cuando se acumulan.
 -   Permite detectar cambios graduales que no serían visibles en comparaciones “antes–después”.
 -   Proporciona evidencia global, **no anecdótica**, del comportamiento del proceso.
 
-Es importante subrayar que el CUSUM **no decide** por sí solo el punto de quiebre. Su valor está en mostrar que la hipótesis de estabilidad del régimen empieza a ser insostenible.
+Es importante subrayar que el CUSUM **no decide** por sí solo el punto de quiebre. Su valor está en mostrar que la hipótesis de estabilidad del régimen empieza a ser insostenible: el gráfico claramente muestra que sí hubo un cambio que adoptó la forma de reducción.
 
 En otras palabras, aquí no estamos “fechando” el cambio, sino **demostrando que algo estructural está ocurriendo y cambiando**. El cambio puede ser perjudicial si la contaminación está aumentando, o benéfico si se está reduciendo.
 
@@ -443,7 +457,7 @@ En la siguiente sección refinaremos esta evidencia utilizando una estadística 
 
 Mientras que el CUSUM proporciona **evidencia global acumulada** de que el proceso dejó de comportarse como antes, el **MOSUM (Moving Sum)** introduce una perspectiva distinta y crucial: una **mirada local en el tiempo**.
 
-El MOSUM no acumula toda la historia del proceso. En su lugar, evalúa lo que ocurre **dentro de una ventana móvil de tamaño fijo**, lo que lo convierte en una herramienta especialmente adecuada para detectar **fases de transición entre regímenes**.
+El MOSUM no acumula toda la historia del proceso. En su lugar, evalúa lo que ocurre **dentro de una ventana móvil de tamaño fijo**, lo que lo convierte en una herramienta especialmente adecuada para detectar **fases de transición entre regímenes**. El parámetro experimental es $h$ y puede tomar distintos valores. Para saber más acerca de las reglas del parámetro $h$, se le invita al lector a consultar en la literatura especializada en el tema.
 
 ```{r, echo = TRUE}
 library(ggplot2)
@@ -476,6 +490,8 @@ p_mosum <- ggplot(df_mosum, aes(x = Semana, y = MOSUM)) +
 
 ggplotly(p_mosum)
 ```
+
+Claramente vemos que el gráfico MOSUM nos revela que sí ocurrió un cambio importante entre las semanas 11 y 28. Se invita al lector a mover el mouse sobre el gráfico. Hallará que en la esquina superior derecha hay un menú intuitivo. Explórelo.
 
 ---
 
@@ -530,7 +546,7 @@ El MOSUM cumple una función precisa dentro del procedimiento completo:
 
 En otras palabras, el MOSUM transforma la pregunta difusa *“algo parece estar cambiando”* en una señal localizada que prepara el terreno para la decisión final.
 
-En la siguiente sección utilizaremos técnicas formales de **change-point detection** para convertir esta evidencia visual y estadística en una **fecha objetiva y defendible del cambio de régimen**.
+En la siguiente sección utilizaremos técnicas formales de **change-point detection** para convertir esta evidencia visual y estadística en una **fecha objetiva y defendible del cambio de régimen, con base científica**.
 
 ---
 
@@ -540,7 +556,7 @@ En esta etapa el análisis deja definitivamente el terreno exploratorio y entra 
 
 El objeto informativo mostrado enseguida corresponde al resultado directo (sin post-procesamiento ni reinterpretación ni opinión humana) del algoritmo de detección de *change-point,* aplicado a los residuales del modelo de referencia.
 
-Este punto es crucial desde la perspectiva de rendición de cuentas: **no se reporta una gráfica interpretada, sino la salida íntegra de un procedimiento estadístico estándar**, implementado mediante una librería ampliamente utilizada , respetada y mantenida en CRAN.
+Este punto es crucial desde la perspectiva de rendición de cuentas: **no se reporta una gráfica interpretada, sino la salida íntegra de un procedimiento estadístico estándar**, implementado mediante una librería ampliamente utilizada, respetada y mantenida en CRAN.
 
 #### **¿Qué está detectando exactamente el algoritmo?**
 
@@ -579,21 +595,21 @@ cp_index <- 10
 
 El procedimiento aplicado es:
 
--   **Tipo de cambio**: cambio en la **media** (*Change in mean*).
--   **Variable analizada**: residuales del modelo de referencia.
+-   **Tipo de cambio**: cambio en la **ECDF** y la **media** (*Change in mean*).
+-   **Variable analizada**: residuales del modelo de referencia (splines).
 -   **Hipótesis implícita**: existe a lo sumo un punto en el tiempo a partir del cual la media de los residuales cambia de manera estructural.
 
 Esto significa que el algoritmo está respondiendo a la siguiente pregunta formal:
 
-> ¿Existe el la serie de datos, un instante en el que el comportamiento del proceso deja de fluctuar alrededor del mismo nivel esperado y pase a hacerlo alrededor de otro?
+> ¿Existe en la serie de datos, un instante en el que el comportamiento del proceso deja de fluctuar alrededor del mismo nivel esperado y pase a hacerlo alrededor de otro?
 
 ### **Enfoque PELT: detección óptima bajo penalización, no búsqueda oportunista**
 
 El método **PELT (Pruned Exact Linear Time)** está diseñado para identificar puntos de cambio **óptimos** en una serie temporal, equilibrando de forma explícita dos fuerzas contrapuestas: la evidencia estadística de cambio y la complejidad del modelo.
 
-A diferencia de enfoques exploratorios, PELT no “busca rupturas” de manera oportunista, sino que selecciona únicamente aquellas que justifican su existencia frente a una penalización formal. En el contexto de rendición de cuentas, este enfoque es especialmente adecuado cuando se requiere demostrar que un cambio de régimen es suficientemente fuerte como para sobrevivir a un criterio conservador, evitando la sobre–segmentación y las narrativas retrospectivas.
+A diferencia de enfoques exploratorios, PELT no “busca rupturas” de manera oportunista, sino que selecciona únicamente aquellas que justifican su existencia frente a una penalización formal. En el contexto de rendición de cuentas, este enfoque es especialmente adecuado cuando se requiere demostrar que un cambio de régimen es suficientemente fuerte como para sobrevivir a un criterio conservador. Con esto evitamos las narrativas retrospectivas subjetivas y "opiniones personales de expertos".
 
-El resultado no es una colección de quiebres posibles, sino una decisión estadística optimizada sobre si el proceso cambió y cuándo ese cambio se consolidó.
+El resultado no es una colección de quiebres posibles, sino una decisión estadística optimizada sobre si el proceso cambió y cuándo ese cambio se consolidó. El resultado surge exclusivamente del algoritmo y por eso, es objetivo e imparcial.
 
 #### **Enfoque AMOC: una decisión, no una exploración**
 
@@ -619,11 +635,14 @@ La línea clave del output es:
 
 Este resultado establece, de manera explícita y reproducible, que:
 
--   [El **cambio de régimen se detecta en la semana 10**.]{.underline}
--   A partir de ese punto, el proceso exhibe un comportamiento estadísticamente distinto al observado antes.
+-   [**Elcambio de régimen se detecta en la semana 10**.]{.underline}
+-   A partir de ese punto, el proceso exhibe un comportamiento estadísticamente distinto al observado antes de la semana 10.
 
-No se trata de una decisión administrativa ni de una delimitación arbitraria.\
-Es la **fecha estimada por el algoritmo** como el punto donde el régimen cambia.
+No se trata de una decisión administrativa ni de una delimitación arbitraria ni recomendación humana.
+
+Es la **fecha estimada por el algoritmo** como el punto en el tiempo donde el régimen cambia: a partir de la semana 10 se establece el antes y después en la línea de tiempo.
+
+**En palabras simples:** lo que sea que haya cambiado, comenzó a cambiar a partir de la semana 10.
 
 #### **¿Por qué este resultado es defendible?**
 
@@ -631,7 +650,7 @@ Este output cumple con los criterios fundamentales de rigor:
 
 -   Es **reproducible**: cualquier analista con los mismos datos y código obtiene el mismo resultado.
 -   Es **auditable**: se reporta el método, la penalización, el estadístico y la localización del cambio.
--   Es **no narrativo**: la fecha no se “elige”, se estima.
+-   Es **no narrativo**: la fecha del cambio no se “elige”. Se estima.
 
 En términos de sostenibilidad, calidad o desempeño operativo, este punto de quiebre puede utilizarse como:
 
@@ -639,12 +658,18 @@ En términos de sostenibilidad, calidad o desempeño operativo, este punto de qu
 -   Referencia objetiva para evaluar eficacia, rezagos o necesidad de ajustes.
 -   Evidencia cuantitativa frente a reguladores, certificadoras y stakeholders.
 
-En la sección siguiente integraremos este punto de quiebre con los análisis anteriores, mostrando cómo **CUSUM, MOSUM y change-point convergen hacia una misma estructura temporal**, cerrando el ciclo analítico y narrativo sin recurrir a interpretaciones subjetivas, totalmente de subjetividades, preferencias, opiniones personales o "*experiencia profesional*".
+En la sección siguiente integraremos este punto de quiebre con los análisis anteriores, mostrando cómo **CUSUM, MOSUM y change-point convergen hacia una misma estructura temporal**, cerrando el ciclo analítico y narrativo sin recurrir a interpretaciones subjetivas, totalmente libre de subjetividades, preferencias, opiniones personales, seniority o "*experiencia profesional*".
+
+En ciencia analítica nada de eso importa. "*La opinión del mejor*" es totalmente irrelevante.
 
 Aquí, finalmente, **el análisis ya respondió con precisión** a las dos preguntas fundamentales:
 
 1.  **Sí hubo un cambio de régimen.**
 2.  **Ocurrió en un momento identificable y defendible en el tiempo.**
+
+¿Este tipo de resultado analítico cómo te beneficia en tu trabajo?
+
+Si prometiste que las cosas cambiarían y estás obligado a demostrarlo científicamente, este es el método.
 
 ---
 
@@ -652,17 +677,26 @@ Aquí, finalmente, **el análisis ya respondió con precisión** a las dos pregu
 
 En esta sección se integran todos los elementos del análisis alrededor de un único eje decisional: **el punto de quiebre detectado formalmente**.
 
-A diferencia de enfoques puramente descriptivos, aquí las visualizaciones no buscan “sugerir” interpretaciones, sino **confirmar visualmente una decisión estadística ya tomada** en la sección anterior mediante un algoritmo explícito de *change-point detection*.
+El punto de quiebre los marcaremos con una **línea vertical roja punteada.**
+
+A diferencia de enfoques puramente descriptivos, aquí las visualizaciones no buscan “sugerir” interpretaciones, sino todo lo contrario:
+
+Los siguientes gráficos han sido actualizados con la marca de quiebre en rojo para **confirmar visualmente que una decisión estadística ya ha sido tomada** .
+
+Lo relevante es que, con nuestro método, esa decisión no la toma ninguna persona: la tomaron dos algoritmos diseñados para cumplir la tarea de *change-point detection*.
+
+Quizá no lo parezca, pero esto te protege: si el algoritmo lo dice, ¿quién lo va a contradecir?
 
 ### **Residuales: Evidencia directa del cambio de régimen**
 
-El primer gráfico muestra los residuales del modelo de referencia junto con el punto de quiebre estimado.\
+El primer gráfico muestra los residuales del modelo de referencia junto con el punto de quiebre estimado.
+
 Este gráfico permite observar de manera directa que:
 
 -   Antes del punto de quiebre, los residuales fluctúan alrededor de un nivel medio consistente.
 -   A partir del punto de quiebre, el patrón de desviación cambia, indicando que el proceso ya no responde al mismo régimen estadístico.
 
-El punto vertical no es interpretativo ni ajustado a posteriori: **corresponde exactamente a la localización estimada por el algoritmo AMOC**.
+El punto vertical no es interpretativo ni ajustado a posteriori: **corresponde exactamente a la localización estimada por los dos algoritmos que aplicamos arriba: PELT y AMOC**.
 
 ```{r, echo = TRUE}
 library(ggplot2)
@@ -735,7 +769,11 @@ p_cusum <- ggplot(df_cusum, aes(x = Semana, y = CUSUM)) +
 ggplotly(p_cusum)
 ```
 
-En este enfoque, el CUSUM cumple un rol específico:
+Al superponer el quiebre en rojo (que se estimó por PELT y AMOC) sobre la gráfica CUSUM, ya no queda discusión: la transición comenzó en la semana 10 y se ha mantenido.
+
+La evidencia es tanto gráfica como analítica: para que sea científica, así es como debe ser.
+
+Con nuestro nuevo y original enfoque aplicado al desempeño ambiental, el CUSUM cumple un rol específico:
 
 -   Confirma la existencia de un cambio estructural a escala global.
 
@@ -749,7 +787,7 @@ Así, el CUSUM establece la **evidencia global**, mientras que el MOSUM caracter
 
 ### **MOSUM: Transición y consolidación del nuevo régimen**
 
-El segundo gráfico integra el mismo punto de quiebre sobre el estadístico MOSUM, que captura cambios locales y acumulativos en la dirección del error.
+El tercer y último gráfico integra el mismo punto de quiebre sobre el estadístico MOSUM, que captura cambios locales y acumulativos en la dirección del error.
 
 Aquí se observa algo fundamental para la rendición de cuentas:
 
@@ -784,6 +822,10 @@ p_mosum <- ggplot(df_mosum, aes(x = Semana, y = MOSUM)) +
 ggplotly(p_mosum)
 ```
 
+¿Cómo lo leemos?
+
+Simple: el cambio de régimen comienza en la semana 10 y el nuevo régimen alcanza su estabilidad entre las semanas 25 y 28. Esto significa que el período inestable de transición ocurrió entre las semanas 10 y 25.
+
 ---
 
 # **Conclusión: Cierre del Workflow Analítico**
@@ -801,19 +843,21 @@ A partir de este punto, **ya no hay ambigüedad**:
 
 -   El antes y el después quedan definidos.
 -   La fecha del cambio no depende de criterios administrativos.
--   La conclusión puede ser defendida técnica, regulatoria y científicamente.
+-   La conclusión puede ser defendida técnica, regulatoria, científica y legalmente.
 
 Este es el tipo de análisis que permite pasar de narrativas vagas a **evidencia cuantitativa**, y de reportes declarativos a rendición de cuentas basada en datos.
 
-Espero que esta información haya sido de tru agrado. Quiero aclarar que, aunque útil e ilustrativa, no es completa ni pretende serlo.
+Espero que esta información haya sido de tu agrado. Quiero aclarar que, aunque útil e ilustrativa, no es completa ni pretende serlo. Faltan más consideraciones, pero para propósitos educativos espero que te haya servido.
 
-Lo único que busca es mostrarle al lector una sola cosa: el auténtico rigor científico que demuestra la verdad acerca de un asunto, exige análisis. Sin él, solo tenemos nuestras palabras.
+¿Para qué hice esto?
 
-Tú eliges: informar con cifras válidas o describir con discursos convincentes.
+Lo único que busco es mostrarle al lector una sola cosa: el auténtico rigor científico que demuestra la verdad acerca de un asunto, exige análisis. Sin él, solo tenemos nuestras opiniones y preferencias.
 
-Cualquier error, inconsistencia o contradicción que detectes es responsabilidad totalmente mía. Házmela saber.
+Tú eliges: informar con cifras validadas, o describir con discursos convincentes.
 
-Gracias.
+Si en este reporte especial encuentras cualquier error, inconsistencia o contradicción es responsabilidad totalmente mía. Házmela saber.
+
+Gracias y buena suerte.
 
 ------------------------------------------------------------------------
 
