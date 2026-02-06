@@ -828,9 +828,160 @@ Simple: el cambio de régimen comienza en la semana 10 y el nuevo régimen alcan
 
 ---
 
+### **Comparación de Distribuciones de Probabilidad**
+
+Hasta ahora hemos hablado de “antes” y “después” como conceptos abstractos.
+
+En esta sección los hacemos **visibles**.
+
+Si un régimen realmente cambió, no solo deberían cambiar los valores puntuales en el tiempo, sino **la forma completa de la distribución de probabilidad** que genera los datos.
+
+A continuación superponemos las distribuciones empíricas del proceso **antes** y **después** del punto de quiebre detectado.
+
+No asumimos normalidad, no imponemos medias ni varianzas: dejamos que los datos hablen mediante histogramas suavizados y estimaciones no paramétricas de densidad (KDE).
+
+Si ambos regímenes pertenecieran a la misma realidad estadística, estas curvas se traslaparían de forma sustancial.
+
+Por otro lado, si el régimen cambió, el contraste no será necesariamente total, pero cualquier cambio sí será visiblemente evidente y puede haber empalme.
+
+Observa de cerca las distribuciones de probabilidad de ambos regímenes.
+
+```{r, echo = TRUE}
+library(plotly)
+
+# Punto de quiebre
+cp <- 10
+
+# Regímenes
+conc_before <- conc[w <= cp]
+conc_after  <- conc[w >  cp]
+
+# KDE con colas extendidas
+dens_before <- density(conc_before, adjust = 1.5)
+dens_after  <- density(conc_after,  adjust = 1.5)
+
+p <- plot_ly() |>
+
+  # Histograma: antes del cambio
+  add_histogram(
+    x = conc_before,
+    histnorm = "probability density",
+    name = "Antes del cambio",
+    opacity = 0.45,
+    marker = list(color = "rgba(215,154,58,0.65)"), # #D79A3A
+    nbinsx = 12
+  ) |>
+
+  # Histograma: después del cambio
+  add_histogram(
+    x = conc_after,
+    histnorm = "probability density",
+    name = "Después del cambio",
+    opacity = 0.45,
+    marker = list(color = "rgba(38,81,41,0.65)"), # #265129
+    nbinsx = 12
+  ) |>
+
+  # KDE antes (línea sólida)
+  add_lines(
+    x = dens_before$x,
+    y = dens_before$y,
+    name = "Densidad empírica (antes)",
+    line = list(
+      color = "#D79A3A",
+      width = 3
+    )
+  ) |>
+
+  # KDE después (línea sólida)
+  add_lines(
+    x = dens_after$x,
+    y = dens_after$y,
+    name = "Densidad empírica (después)",
+    line = list(
+      color = "#265129",
+      width = 3
+    )
+  ) |>
+
+  layout(
+    title = list(
+      text = "Cambio de régimen: distribuciones de probabilidad diferentes",
+      x = 0.5
+    ),
+    xaxis = list(title = "Concentración (mg/L)"),
+    yaxis = list(title = "Densidad empírica"),
+    barmode = "overlay",
+    legend = list(orientation = "h", x = 0.22, y = -0.18)
+  )
+
+p
+```
+
+¿Qué opina el lector? ¿Son iguales? ¿Son diferentes? ¿Son muy diferentes? ¿Son poco diferentes?
+
+Este gráfico resume visualmente lo que significa un **cambio de régimen**:
+
+-   Cada color representa una realidad estadística distinta del proceso.
+
+-   Las diferencias no se limitan a un desplazamiento del promedio: cambian la forma, la dispersión y las colas de la distribución.
+
+-   La densidad empírica (KDE) muestra que los datos antes y después del punto de quiebre **no provienen de la misma distribución subyacente**.
+
+Esto es precisamente lo que los métodos de *change-point detection* formalizan matemáticamente:
+
+La transición entre dos regímenes probabilísticos distintos.
+
+### **Cierre Inferencial: Prueba de Hipótesis**
+
+Hasta ahora hemos mostrado evidencia visual y estructural de un cambio de régimen.
+
+El último paso es formular explícitamente una prueba de hipótesis clásica, no paramétrica, que contraste si ambos regímenes pueden considerarse estadísticamente equivalentes.
+
+Para ello utilizamos la prueba de **Mann–Whitney (Wilcoxon rank-sum)**, adecuada cuando no se asume normalidad ni se comparan medias, sino la localización general de dos distribuciones independientes.
+
+```{r, echo = TRUE}
+# Prueba no paramétrica de igualdad de distribuciones
+mw_test <- wilcox.test(
+  conc_before,
+  conc_after,
+  alternative = "two.sided",
+  exact = FALSE
+)
+
+mw_test
+
+```
+
+La prueba rechaza la hipótesis nula de igualdad distributiva entre los datos antes y después del punto de quiebre (p-valor = 0.008).
+
+Sin imponer supuestos paramétricos, este resultado confirma que ambos conjuntos de observaciones **no provienen de la misma distribución subyacente**.
+
+En términos prácticos, esto significa que la diferencia entre regímenes **no puede atribuirse a variabilidad aleatoria ni a la suerte**: hubo efectivamente una causa, intervención o esfuerzo que empujó el impacto ambiental hacia un nivel menor.
+
+En conjunto con la detección explícita del *change-point* y el contraste visual de las distribuciones empíricas, la evidencia converge en una conclusión clara y operativamente verificable:
+
+**El proceso cambió de régimen en un momento identificable y estadísticamente defendible.**
+
+Y dicho sin rodeos:
+
+Si estos datos provinieran de un proyecto tuyo, **puedes celebrar, destapar la champaña y decirlo sin complejos**:
+
+👉 **Misión cumplida.**
+
+---
+
 # **Conclusión: Cierre del Workflow Analítico**
 
-Con esta integración visual se cierra el workflow completo:
+La tarea es demasiado simple:
+
+Tienes una serie de datos. Identificas el punto de quiebre. Descubres si el cambio ocurrió o no.
+
+Eso es todo.
+
+Se dice simple. El proceso es laborioso.
+
+Con esta integración visual que hicimos, el workflow completo se cierra:
 
 -   Los datos observados muestran variabilidad natural.
 -   El modelo de referencia captura el comportamiento esperado.
